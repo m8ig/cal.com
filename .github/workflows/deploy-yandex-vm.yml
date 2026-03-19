@@ -77,8 +77,10 @@ jobs:
             sudo docker login --username json_key --password-stdin cr.yandex </tmp/sa.json
             rm -f /tmp/sa.json
 
-            sudo docker pull "$IMAGE_LATEST"
             sudo docker rm -f calcom || true
+            sudo docker image prune -af || true
+            sudo docker builder prune -af || true
+            sudo docker pull "$IMAGE_LATEST"
 
             sudo docker run -d \
               --name calcom \

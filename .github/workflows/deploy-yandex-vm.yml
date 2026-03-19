@@ -68,6 +68,7 @@ jobs:
           host: ${{ secrets.YC_VM_HOST }}
           username: ${{ secrets.YC_VM_USER }}
           key: ${{ secrets.YC_VM_SSH_KEY }}
+          command_timeout: 30m
           script_stop: true
           envs: IMAGE_LATEST,YC_SA_JSON_CREDENTIALS_B64,DATABASE_URL,DATABASE_HOST,NEXTAUTH_SECRET,CALENDSO_ENCRYPTION_KEY,NEXT_PUBLIC_WEBAPP_URL,NEXT_PUBLIC_WEBSITE_URL,NEXTAUTH_URL,GOOGLE_API_CREDENTIALS
           script: |

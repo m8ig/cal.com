@@ -4,7 +4,10 @@ import { z } from "zod";
 
 import { getServerSession } from "@calcom/features/auth/lib/getServerSession";
 import type { GetBookingType } from "@calcom/features/bookings/lib/get-booking";
-import { getBookingForReschedule, getBookingForSeatedEvent } from "@calcom/features/bookings/lib/get-booking";
+import {
+  getBookingForReschedule,
+  getBookingForSeatedEvent,
+} from "@calcom/features/bookings/lib/get-booking";
 import { orgDomainConfig } from "@calcom/features/ee/organizations/lib/orgDomains";
 import { getUsernameList } from "@calcom/features/eventtypes/lib/defaultEvents";
 import type { getPublicEvent } from "@calcom/features/eventtypes/lib/getPublicEvent";
@@ -30,6 +33,10 @@ type Props = {
   isSEOIndexable: boolean | null;
   themeBasis: null | string;
   orgBannerUrl: null;
+  entity: {
+    logoUrl?: string | null;
+    name?: string | null;
+  };
 };
 
 async function processReschedule({
@@ -45,7 +52,10 @@ async function processReschedule({
 }) {
   if (!rescheduleUid) return;
 
-  const booking = await getBookingForReschedule(`${rescheduleUid}`, session?.user?.id);
+  const booking = await getBookingForReschedule(
+    `${rescheduleUid}`,
+    session?.user?.id
+  );
 
   if (booking?.eventType?.disableRescheduling) {
     return {
@@ -66,7 +76,9 @@ async function processReschedule({
         !!(props.eventData as any)?.allowReschedulingCancelledBookings))
   ) {
     props.booking = booking;
-    props.rescheduleUid = Array.isArray(rescheduleUid) ? rescheduleUid[0] : rescheduleUid;
+    props.rescheduleUid = Array.isArray(rescheduleUid)
+      ? rescheduleUid[0]
+      : rescheduleUid;
     return;
   }
   // handle redirect response
@@ -102,7 +114,10 @@ async function processSeatedEvent({
 }) {
   if (!bookingUid) return;
   const booking = await getBookingForSeatedEvent(`${bookingUid}`);
-  if (booking?.status === BookingStatus.CANCELLED && !allowRescheduleForCancelledBooking) {
+  if (
+    booking?.status === BookingStatus.CANCELLED &&
+    !allowRescheduleForCancelledBooking
+  ) {
     return {
       redirect: {
         permanent: false,
@@ -119,8 +134,12 @@ async function getDynamicGroupPageProps(context: GetServerSidePropsContext) {
   const session = await getServerSession({ req: context.req });
   const { user: usernames, type: slug } = paramsSchema.parse(context.params);
   const { rescheduleUid, bookingUid } = context.query;
-  const allowRescheduleForCancelledBooking = context.query.allowRescheduleForCancelledBooking === "true";
-  const { currentOrgDomain, isValidOrgDomain } = orgDomainConfig(context.req, context.params?.orgSlug);
+  const allowRescheduleForCancelledBooking =
+    context.query.allowRescheduleForCancelledBooking === "true";
+  const { currentOrgDomain, isValidOrgDomain } = orgDomainConfig(
+    context.req,
+    context.params?.orgSlug
+  );
   const org = isValidOrgDomain ? currentOrgDomain : null;
 
   const redirect = await handleOrgRedirect({
@@ -171,7 +190,8 @@ async function getDynamicGroupPageProps(context: GetServerSidePropsContext) {
   // Redirect if no routing form response and redirect URL is configured
   // Don't redirect if this is a reschedule or seated booking flow
   const hasRoutingFormResponse =
-    context.query["cal.routingFormResponseId"] || context.query["cal.queuedFormResponseId"];
+    context.query["cal.routingFormResponseId"] ||
+    context.query["cal.queuedFormResponseId"];
   if (
     !hasRoutingFormResponse &&
     !rescheduleUid &&
@@ -236,8 +256,12 @@ async function getUserPageProps(context: GetServerSidePropsContext) {
   const { user: usernames, type: slug } = paramsSchema.parse(context.params);
   const username = usernames[0];
   const { rescheduleUid, bookingUid } = context.query;
-  const allowRescheduleForCancelledBooking = context.query.allowRescheduleForCancelledBooking === "true";
-  const { currentOrgDomain, isValidOrgDomain } = orgDomainConfig(context.req, context.params?.orgSlug);
+  const allowRescheduleForCancelledBooking =
+    context.query.allowRescheduleForCancelledBooking === "true";
+  const { currentOrgDomain, isValidOrgDomain } = orgDomainConfig(
+    context.req,
+    context.params?.orgSlug
+  );
 
   const redirect = await handleOrgRedirect({
     slugs: usernames,
@@ -251,7 +275,10 @@ async function getUserPageProps(context: GetServerSidePropsContext) {
     return redirect;
   }
 
-  const [user] = await getUsersInOrgContext([username], isValidOrgDomain ? currentOrgDomain : null);
+  const [user] = await getUsersInOrgContext(
+    [username],
+    isValidOrgDomain ? currentOrgDomain : null
+  );
 
   if (!user) {
     return {
@@ -282,7 +309,8 @@ async function getUserPageProps(context: GetServerSidePropsContext) {
   // Redirect if no routing form response and redirect URL is configured
   // Don't redirect if this is a reschedule or seated booking flow
   const hasRoutingFormResponse =
-    context.query["cal.routingFormResponseId"] || context.query["cal.queuedFormResponseId"];
+    context.query["cal.routingFormResponseId"] ||
+    context.query["cal.queuedFormResponseId"];
   if (
     !hasRoutingFormResponse &&
     !rescheduleUid &&
@@ -317,6 +345,10 @@ async function getUserPageProps(context: GetServerSidePropsContext) {
     bookingUid: bookingUid ? `${bookingUid}` : null,
     rescheduleUid: null,
     orgBannerUrl: eventData?.owner?.profile?.organization?.bannerUrl ?? null,
+    entity: {
+      logoUrl: "/logo.png", // Static logo from public folder
+      name: eventData?.owner?.profile?.organization?.name ?? null,
+    },
   };
   if (rescheduleUid) {
     const processRescheduleResult = await processReschedule({
@@ -351,9 +383,13 @@ const paramsSchema = z.object({
 
 // Booker page fetches a tiny bit of data server side, to determine early
 // whether the page should show an away state or dynamic booking not allowed.
-export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
   const { user } = paramsSchema.parse(context.params);
   const isDynamicGroup = user.length > 1;
 
-  return isDynamicGroup ? await getDynamicGroupPageProps(context) : await getUserPageProps(context);
+  return isDynamicGroup
+    ? await getDynamicGroupPageProps(context)
+    : await getUserPageProps(context);
 };

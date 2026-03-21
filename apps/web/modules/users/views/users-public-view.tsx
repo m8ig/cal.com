@@ -31,7 +31,8 @@ export function UserPage(props: PageProps) {
 
   const isEmbed = useIsEmbed(props.isEmbed);
   const eventTypeListItemEmbedStyles = useEmbedStyles("eventTypeListItem");
-  const shouldAlignCentrallyInEmbed = useEmbedNonStylesConfig("align") !== "left";
+  const shouldAlignCentrallyInEmbed =
+    useEmbedNonStylesConfig("align") !== "left";
   const shouldAlignCentrally = !isEmbed || shouldAlignCentrallyInEmbed;
   const {
     // So it doesn't display in the Link (and make tests fail)
@@ -54,13 +55,35 @@ export function UserPage(props: PageProps) {
 
   return (
     <>
-      <div className={classNames(shouldAlignCentrally ? "mx-auto" : "", isEmbed ? "max-w-3xl" : "")}>
+      <div
+        className={classNames(
+          shouldAlignCentrally ? "mx-auto" : "",
+          isEmbed ? "max-w-3xl" : ""
+        )}
+      >
         <main
           className={classNames(
             shouldAlignCentrally ? "mx-auto" : "",
-            isEmbed ? "border-booker border-booker-width  bg-default rounded-md" : "",
+            isEmbed
+              ? "border-booker border-booker-width  bg-default rounded-md"
+              : "",
             "max-w-3xl px-4 py-12"
-          )}>
+          )}
+        >
+          {!isEmbed && (
+            <div className="mb-8">
+              {entity.logoUrl && (
+                <Link href={"https://ignatev.co"}>
+                  <img
+                    className="h-10 object-cover"
+                    alt="Ignatev & Co"
+                    src={entity.logoUrl}
+                  />
+                </Link>
+              )}
+            </div>
+          )}
+
           <div className="border-subtle bg-default text-default mb-8 overflow-hidden rounded-xl border">
             {isOrg && user.profile.organization?.bannerUrl && (
               <OrgBanner
@@ -78,14 +101,17 @@ export function UserPage(props: PageProps) {
                   name: profile.name,
                   username: profile.username,
                 }}
-                className={isOrg && user.profile.organization?.bannerUrl ? "-mt-14" : ""}
+                className={
+                  isOrg && user.profile.organization?.bannerUrl ? "-mt-14" : ""
+                }
               />
               <h1
                 className={classNames(
                   "font-cal text-emphasis mb-1 text-xl",
                   isOrg && user.profile.organization?.bannerUrl ? "" : "mt-4"
                 )}
-                data-testid="name-title">
+                data-testid="name-title"
+              >
                 {profile.name}
                 {!isOrg && user.verified && (
                   <Icon
@@ -105,7 +131,9 @@ export function UserPage(props: PageProps) {
                   {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Content is sanitized via safeBio */}
                   <div
                     className="text-default wrap-break-word text-sm [&_a]:text-blue-500 [&_a]:underline [&_a]:hover:text-blue-600"
-                    dangerouslySetInnerHTML={{ __html: props.safeBio }}
+                    dangerouslySetInnerHTML={{
+                      __html: props.safeBio,
+                    }}
                   />
                 </>
               )}
@@ -113,12 +141,19 @@ export function UserPage(props: PageProps) {
           </div>
 
           <div
-            className={classNames("rounded-md ", !isEventListEmpty && "border-subtle border")}
-            data-testid="event-types">
+            className={classNames(
+              "rounded-md ",
+              !isEventListEmpty && "border-subtle border"
+            )}
+            data-testid="event-types"
+          >
             {eventTypes.map((type) => (
               <Link
                 key={type.id}
-                style={{ display: "flex", ...eventTypeListItemEmbedStyles }}
+                style={{
+                  display: "flex",
+                  ...eventTypeListItemEmbedStyles,
+                }}
                 prefetch={false}
                 href={{
                   pathname: `/${user.profile.username}/${type.slug}`,
@@ -131,7 +166,8 @@ export function UserPage(props: PageProps) {
                   });
                 }}
                 className="bg-default border-subtle dark:bg-cal-muted dark:hover:bg-subtle hover:bg-cal-muted group relative border-b transition first:rounded-t-md last:rounded-b-md last:border-b-0"
-                data-testid="event-type-link">
+                data-testid="event-type-link"
+              >
                 <Icon
                   name="arrow-right"
                   className="text-emphasis absolute right-4 top-4 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100"
@@ -139,9 +175,15 @@ export function UserPage(props: PageProps) {
                 {/* Don't prefetch till the time we drop the amount of javascript in [user][type] page which is impacting score for [user] page */}
                 <div className="block w-full p-5">
                   <div className="flex flex-wrap items-center">
-                    <h2 className="text-default pr-2 text-sm font-semibold">{type.title}</h2>
+                    <h2 className="text-default pr-2 text-sm font-semibold">
+                      {type.title}
+                    </h2>
                   </div>
-                  <EventTypeDescription eventType={type} isPublic={true} shortenDescription />
+                  <EventTypeDescription
+                    eventType={type}
+                    isPublic={true}
+                    shortenDescription
+                  />
                 </div>
               </Link>
             ))}

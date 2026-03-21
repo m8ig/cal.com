@@ -2,7 +2,9 @@
 
 import type { EmbedProps } from "app/WithEmbedSSR";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
+import { WEBSITE_URL } from "@calcom/lib/constants";
 import { BookerWebWrapper as Booker } from "@calcom/web/modules/bookings/components/BookerWebWrapper";
 import { getBookerWrapperClasses } from "@calcom/features/bookings/Booker/utils/getBookerWrapperClasses";
 
@@ -20,16 +22,40 @@ export const getMultipleDurationValue = (
   defaultValue: number
 ) => {
   if (!multipleDurationConfig) return null;
-  if (multipleDurationConfig.includes(Number(queryDuration))) return Number(queryDuration);
+  if (multipleDurationConfig.includes(Number(queryDuration)))
+    return Number(queryDuration);
   return defaultValue;
 };
 
-function Type({ slug, user, isEmbed, booking, isBrandingHidden, eventData, orgBannerUrl }: PageProps) {
+function Type({
+  slug,
+  user,
+  isEmbed,
+  booking,
+  isBrandingHidden,
+  eventData,
+  orgBannerUrl,
+  entity,
+}: PageProps) {
   const searchParams = useSearchParams();
 
   return (
     <BookingPageErrorBoundary>
       <main className={getBookerWrapperClasses({ isEmbed: !!isEmbed })}>
+        {!isEmbed && (
+          <div>
+            {entity.logoUrl && (
+              <Link href={"https://ignatev.co"}>
+                <img
+                  className="h-10 object-cover"
+                  alt="Ignatev & Co"
+                  src={entity.logoUrl}
+                />
+              </Link>
+            )}
+          </div>
+        )}
+
         <Booker
           username={user}
           eventSlug={slug}

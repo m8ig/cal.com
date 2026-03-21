@@ -223,6 +223,10 @@ async function getDynamicGroupPageProps(context: GetServerSidePropsContext) {
     bookingUid: bookingUid ? `${bookingUid}` : null,
     rescheduleUid: null,
     orgBannerUrl: null,
+    entity: {
+      logoUrl: eventData?.owner?.profile?.organization?.logoUrl ?? null,
+      name: eventData?.owner?.profile?.organization?.name ?? null,
+    },
   };
 
   if (rescheduleUid) {

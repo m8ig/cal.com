@@ -42,17 +42,15 @@ function Type({
   return (
     <BookingPageErrorBoundary>
       <main className={getBookerWrapperClasses({ isEmbed: !!isEmbed })}>
-        {!isEmbed && (
+        {!isEmbed && entity?.logoUrl && (
           <div>
-            {entity.logoUrl && (
-              <Link href={"https://ignatev.co"}>
-                <img
-                  className="h-10 object-cover"
-                  alt="Ignatev & Co"
-                  src={entity.logoUrl}
-                />
-              </Link>
-            )}
+            <Link href={"https://ignatev.co"}>
+              <img
+                className="h-10 object-cover"
+                alt="Ignatev & Co"
+                src={entity.logoUrl}
+              />
+            </Link>
           </div>
         )}
 

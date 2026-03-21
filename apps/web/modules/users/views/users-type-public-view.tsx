@@ -43,7 +43,7 @@ function Type({
     <BookingPageErrorBoundary>
       <main className={getBookerWrapperClasses({ isEmbed: !!isEmbed })}>
         {!isEmbed && entity?.logoUrl && (
-          <div>
+          <div className="m-6 lg:m-0">
             <Link href={"https://ignatev.co"}>
               <img
                 className="h-10 object-cover"

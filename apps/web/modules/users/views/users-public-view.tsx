@@ -71,10 +71,10 @@ export function UserPage(props: PageProps) {
           )}
         >
           {!isEmbed && entity?.logoUrl && (
-            <div className="mb-8">
+            <div className="mb-6">
               <Link href={"https://ignatev.co"}>
                 <img
-                  className="h-10 object-cover"
+                  className="m-auto h-10 object-cover"
                   alt="Ignatev & Co"
                   src={entity.logoUrl}
                 />

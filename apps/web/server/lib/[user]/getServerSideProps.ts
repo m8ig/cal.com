@@ -8,7 +8,10 @@ import { getUsernameList } from "@calcom/features/eventtypes/lib/defaultEvents";
 import { getEventTypesPublic } from "@calcom/features/eventtypes/lib/getEventTypesPublic";
 import { getBrandingForUser } from "@calcom/features/profile/lib/getBranding";
 import { UserRepository } from "@calcom/features/users/repositories/UserRepository";
-import { DEFAULT_DARK_BRAND_COLOR, DEFAULT_LIGHT_BRAND_COLOR } from "@calcom/lib/constants";
+import {
+  DEFAULT_DARK_BRAND_COLOR,
+  DEFAULT_LIGHT_BRAND_COLOR,
+} from "@calcom/lib/constants";
 import { getUserAvatarUrl } from "@calcom/lib/getAvatarUrl";
 import logger from "@calcom/lib/logger";
 import { markdownToSafeHTML } from "@calcom/lib/markdownToSafeHTML";
@@ -78,8 +81,13 @@ type UserPageProps = {
   isOrgSEOIndexable: boolean | undefined;
 } & EmbedProps;
 
-export const getServerSideProps: GetServerSideProps<UserPageProps> = async (context) => {
-  const { currentOrgDomain, isValidOrgDomain } = orgDomainConfig(context.req, context.params?.orgSlug);
+export const getServerSideProps: GetServerSideProps<UserPageProps> = async (
+  context
+) => {
+  const { currentOrgDomain, isValidOrgDomain } = orgDomainConfig(
+    context.req,
+    context.params?.orgSlug
+  );
   const usernameList = getUsernameList(context.query.user as string);
   const isARedirectFromNonOrgLink = context.query.orgRedirection === "true";
   const dataFetchStart = Date.now();
@@ -102,14 +110,23 @@ export const getServerSideProps: GetServerSideProps<UserPageProps> = async (cont
   );
 
   const isDynamicGroup = usersInOrgContext.length > 1;
-  log.debug(safeStringify({ usersInOrgContext, isValidOrgDomain, currentOrgDomain, isDynamicGroup }));
+  log.debug(
+    safeStringify({
+      usersInOrgContext,
+      isValidOrgDomain,
+      currentOrgDomain,
+      isDynamicGroup,
+    })
+  );
 
   if (isDynamicGroup) {
     const destinationUrl = encodeURI(`/${usernameList.join("+")}/dynamic`);
 
     // EXAMPLE - context.params: { orgSlug: 'acme', user: 'member0+owner1' }
     // EXAMPLE - context.query: { redirect: 'undefined', orgRedirection: 'undefined', user: 'member0+owner1' }
-    const originalQueryString = new URLSearchParams(context.query as Record<string, string>).toString();
+    const originalQueryString = new URLSearchParams(
+      context.query as Record<string, string>
+    ).toString();
     const destinationWithQuery = `${destinationUrl}?${originalQueryString}`;
     log.debug(`Dynamic group detected, redirecting to ${destinationUrl}`);
     return {
@@ -126,7 +143,10 @@ export const getServerSideProps: GetServerSideProps<UserPageProps> = async (cont
 
   const isThereAnyNonOrgUser = usersInOrgContext.some(isNonOrgUser);
 
-  if (!usersInOrgContext.length || (!isValidOrgDomain && !isThereAnyNonOrgUser)) {
+  if (
+    !usersInOrgContext.length ||
+    (!isValidOrgDomain && !isThereAnyNonOrgUser)
+  ) {
     return {
       notFound: true,
     } as const;
@@ -152,7 +172,10 @@ export const getServerSideProps: GetServerSideProps<UserPageProps> = async (cont
 
   const dataFetchEnd = Date.now();
   if (context.query.log === "1") {
-    context.res.setHeader("X-Data-Fetch-Time", `${dataFetchEnd - dataFetchStart}ms`);
+    context.res.setHeader(
+      "X-Data-Fetch-Time",
+      `${dataFetchEnd - dataFetchStart}ms`
+    );
   }
 
   const eventTypes = await getEventTypesPublic(user.id);
@@ -188,7 +211,7 @@ export const getServerSideProps: GetServerSideProps<UserPageProps> = async (cont
         profile: user.profile,
       })),
       entity: {
-        ...(org?.logoUrl ? { logoUrl: org?.logoUrl } : {}),
+        logoUrl: "/logo.png", // Static logo from public folder
         considerUnpublished: !isARedirectFromNonOrgLink && org?.slug === null,
         orgSlug: currentOrgDomain,
         name: org?.name ?? null,
@@ -204,7 +227,10 @@ export const getServerSideProps: GetServerSideProps<UserPageProps> = async (cont
   };
 };
 
-export async function getUsersInOrgContext(usernameList: string[], orgSlug: string | null) {
+export async function getUsersInOrgContext(
+  usernameList: string[],
+  orgSlug: string | null
+) {
   const userRepo = new UserRepository(prisma);
 
   const usersInOrgContext = await userRepo.findUsersByUsername({

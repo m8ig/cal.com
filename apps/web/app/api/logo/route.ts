@@ -9,7 +9,8 @@ import {
   ANDROID_CHROME_ICON_192,
   ANDROID_CHROME_ICON_256,
   APPLE_TOUCH_ICON,
-  FAVICON_96,
+  FAVICON_16,
+  FAVICON_32,
   IS_SELF_HOSTED,
   LOGO,
   LOGO_ICON,
@@ -49,7 +50,8 @@ const SYSTEM_SUBDOMAINS = ["console", "app", "www"];
 type LogoType =
   | "logo"
   | "icon"
-  | "favicon-96"
+  | "favicon-16"
+  | "favicon-32"
   | "apple-touch-icon"
   | "mstile"
   | "android-chrome-192"
@@ -71,10 +73,16 @@ const logoDefinitions: Record<LogoType, LogoTypeDefinition> = {
     fallback: `${WEBAPP_URL}${LOGO_ICON}`,
     source: "appIconLogo",
   },
-  "favicon-96": {
-    fallback: `${WEBAPP_URL}${FAVICON_96}`,
-    w: 96,
-    h: 96,
+  "favicon-16": {
+    fallback: `${WEBAPP_URL}${FAVICON_16}`,
+    w: 16,
+    h: 16,
+    source: "appIconLogo",
+  },
+  "favicon-32": {
+    fallback: `${WEBAPP_URL}${FAVICON_32}`,
+    w: 32,
+    h: 32,
     source: "appIconLogo",
   },
   "apple-touch-icon": {

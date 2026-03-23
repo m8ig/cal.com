@@ -49,8 +49,7 @@ const SYSTEM_SUBDOMAINS = ["console", "app", "www"];
 type LogoType =
   | "logo"
   | "icon"
-  | "favicon-16"
-  | "favicon-32"
+  | "favicon-96"
   | "apple-touch-icon"
   | "mstile"
   | "android-chrome-192"
@@ -72,10 +71,10 @@ const logoDefinitions: Record<LogoType, LogoTypeDefinition> = {
     fallback: `${WEBAPP_URL}${LOGO_ICON}`,
     source: "appIconLogo",
   },
-  "favicon-32": {
+  "favicon-96": {
     fallback: `${WEBAPP_URL}${FAVICON_96}`,
-    w: 32,
-    h: 32,
+    w: 96,
+    h: 96,
     source: "appIconLogo",
   },
   "apple-touch-icon": {

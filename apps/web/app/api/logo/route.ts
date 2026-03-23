@@ -9,8 +9,7 @@ import {
   ANDROID_CHROME_ICON_192,
   ANDROID_CHROME_ICON_256,
   APPLE_TOUCH_ICON,
-  FAVICON_16,
-  FAVICON_32,
+  FAVICON_96,
   IS_SELF_HOSTED,
   LOGO,
   LOGO_ICON,
@@ -18,7 +17,11 @@ import {
   WEBAPP_URL,
 } from "@calcom/lib/constants";
 import logger from "@calcom/lib/logger";
-import { isTrustedInternalUrl, logBlockedSSRFAttempt, validateUrlForSSRF } from "@calcom/lib/ssrfProtection";
+import {
+  isTrustedInternalUrl,
+  logBlockedSSRFAttempt,
+  validateUrlForSSRF,
+} from "@calcom/lib/ssrfProtection";
 
 import { buildLegacyRequest } from "@lib/buildLegacyCtx";
 
@@ -69,14 +72,8 @@ const logoDefinitions: Record<LogoType, LogoTypeDefinition> = {
     fallback: `${WEBAPP_URL}${LOGO_ICON}`,
     source: "appIconLogo",
   },
-  "favicon-16": {
-    fallback: `${WEBAPP_URL}${FAVICON_16}`,
-    w: 16,
-    h: 16,
-    source: "appIconLogo",
-  },
   "favicon-32": {
-    fallback: `${WEBAPP_URL}${FAVICON_32}`,
+    fallback: `${WEBAPP_URL}${FAVICON_96}`,
     w: 32,
     h: 32,
     source: "appIconLogo",
@@ -166,7 +163,9 @@ async function getTeamLogos(subdomain: string, isValidOrgDomain: boolean) {
  */
 async function getHandler(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const parsedQuery = logoApiSchema.parse(Object.fromEntries(searchParams.entries()));
+  const parsedQuery = logoApiSchema.parse(
+    Object.fromEntries(searchParams.entries())
+  );
 
   // Create a legacy request object for compatibility
   const legacyReq = buildLegacyRequest(await headers(), await cookies());
@@ -186,9 +185,13 @@ async function getHandler(request: NextRequest) {
   const teamLogos = await getTeamLogos(subdomain, isValidOrgDomain);
 
   // Resolve all icon types to team logos, falling back to Cal.com defaults.
-  const type: LogoType = parsedQuery?.type && isValidLogoType(parsedQuery.type) ? parsedQuery.type : "logo";
+  const type: LogoType =
+    parsedQuery?.type && isValidLogoType(parsedQuery.type)
+      ? parsedQuery.type
+      : "logo";
   const logoDefinition = logoDefinitions[type];
-  const filteredLogo = teamLogos[logoDefinition.source] ?? logoDefinition.fallback;
+  const filteredLogo =
+    teamLogos[logoDefinition.source] ?? logoDefinition.fallback;
 
   try {
     let response: Response;
@@ -201,7 +204,9 @@ async function getHandler(request: NextRequest) {
     else {
       const validation = await validateUrlForSSRF(filteredLogo);
       if (!validation.isValid) {
-        logBlockedSSRFAttempt(filteredLogo, validation.error || "Unknown", { subdomain });
+        logBlockedSSRFAttempt(filteredLogo, validation.error || "Unknown", {
+          subdomain,
+        });
         // Graceful degradation: use default logo instead of error
         response = await fetch(logoDefinition.fallback);
       } else {
@@ -218,13 +223,14 @@ async function getHandler(request: NextRequest) {
     // Resize the team logos if needed
     if (teamLogos[logoDefinition.source] && logoDefinition.w) {
       const { resizeImage } = await import("@calcom/lib/server/imageUtils");
-      const { buffer: outBuffer, contentType: outContentType } = await resizeImage({
-        buffer,
-        width: logoDefinition.w,
-        height: logoDefinition.h,
-        quality: 100,
-        contentType,
-      });
+      const { buffer: outBuffer, contentType: outContentType } =
+        await resizeImage({
+          buffer,
+          width: logoDefinition.w,
+          height: logoDefinition.h,
+          quality: 100,
+          contentType,
+        });
       buffer = outBuffer;
       contentType = outContentType;
     }
@@ -234,11 +240,17 @@ async function getHandler(request: NextRequest) {
 
     // Set the appropriate headers
     imageResponse.headers.set("Content-Type", contentType);
-    imageResponse.headers.set("Cache-Control", "s-maxage=86400, stale-while-revalidate=60");
+    imageResponse.headers.set(
+      "Cache-Control",
+      "s-maxage=86400, stale-while-revalidate=60"
+    );
 
     return imageResponse;
   } catch (error) {
-    return NextResponse.json({ error: "Failed fetching logo" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Failed fetching logo" },
+      { status: 404 }
+    );
   }
 }
 
